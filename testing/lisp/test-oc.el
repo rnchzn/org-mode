@@ -21,6 +21,8 @@
 
 (require 'oc)
 (require 'ox)
+;; We need `org-test-with-parsed-data' macro.
+(require 'test-ox "../testing/lisp/test-ox.el")
 
 (ert-deftest test-org-cite/register-processor ()
   "Test `org-cite-register-processor'."
@@ -409,6 +411,44 @@
                                    (org-element-property :key ref))
                                  (org-element-contents c)))
                        (org-cite-list-citations info))))))
+
+(ert-deftest org-cite/wrap-citation ()
+  "Test `org-cite-wrap-citation'."
+  ;; Reference test.
+  (should
+   (org-test-with-parsed-data "[cite:@key]"
+     (org-element-map tree 'citation
+       (lambda (c)
+         (org-cite-wrap-citation c)
+         (org-cite-inside-footnote-p c))
+       info)))
+  ;; Created footnote is anonymous.
+  (should-not
+   (org-test-with-parsed-data "[cite:@key]  "
+     (org-element-map tree 'citation
+       (lambda (c)
+         (org-cite-wrap-citation c)
+         (org-element-property :label (org-cite-inside-footnote-p c)))
+       info)))
+  ;; Created footnote is inline.
+  (should
+   (equal '(inline)
+          (org-test-with-parsed-data "[cite:@key]"
+            (org-element-map tree 'citation
+              (lambda (c)
+                (org-cite-wrap-citation c)
+                (org-element-property :type (org-cite-inside-footnote-p c)))
+              info))))
+  ;; Preserve `:post-blank' property.
+  (should
+   (equal '(2)
+          (org-test-with-parsed-data "[cite:@key]  "
+            (org-element-map tree 'citation
+              (lambda (c)
+                (org-cite-wrap-citation c)
+                (org-element-property :post-blank
+                                      (org-cite-inside-footnote-p c)))
+              info)))))
 
 
 ;;; Test capabilities.

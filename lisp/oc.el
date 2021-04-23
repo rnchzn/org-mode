@@ -60,6 +60,7 @@
 
 (declare-function org-collect-keywords "org" (keywords &optional unique directory))
 
+(declare-function org-element-adopt-elements "org-element" (parent &rest children))
 (declare-function org-element-citation-parser "org-element" ())
 (declare-function org-element-contents "org-element" (element))
 (declare-function org-element-extract-element "org-element" (element))
@@ -333,6 +334,21 @@ Citations are ordered by appearance in the document, when following footnotes."
         (let ((result (nreverse cites)))
           (plist-put info :citations result)
           result))))
+
+(defun org-cite-wrap-citation (citation)
+  "Wrap an anonymous inline footnote around CITATION object in the parse tree.
+The parse tree is modified by side-effect."
+  (let ((footnote
+         (list 'footnote-reference
+               (list :label nil
+                     :type 'inline
+                     :contents-begin (org-element-property :begin citation)
+                     :contents-end (org-element-property :end citation)
+                     :post-blank (org-element-property :post-blank citation)))))
+    ;; Footnote swallows citation.
+    (org-element-insert-before footnote citation)
+    (org-element-adopt-elements footnote
+      (org-element-extract-element citation))))
 
 
 ;;; Internal interface with fontification (activate capability)
