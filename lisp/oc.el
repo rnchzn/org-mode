@@ -290,6 +290,15 @@ or from the current buffer."
                             (org-element-property :contents-end citation))
           (org-element-restriction 'citation))))))
 
+(defun org-cite-key-boundaries (reference)
+  "Return citation REFERENCE's key boundaries as buffer positions.
+The function returns a pair (START . END) where START and END denote positions
+in the current buffer.  Positions include leading \"@\" and \"-\" characters."
+  (org-with-point-at (org-element-property :begin reference)
+    (let ((end (org-element-property :end reference)))
+      (re-search-forward org-element-citation-key-re end t)
+      (cons (match-beginning 0) (match-end 0)))))
+
 
 ;;; Tools only available during export
 (defun org-cite-citation-style (citation info)

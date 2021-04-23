@@ -160,6 +160,51 @@
             (org-element-map (org-element-parse-buffer) 'citation
               (lambda (c) (length (org-cite-get-references c))))))))
 
+(ert-deftest test-org-cite/key-boundaries ()
+  "Test `org-cite-key-boundaries'."
+  (should
+   (equal "@key"
+          (org-test-with-temp-text "[cite:<point>@key]"
+            (let ((boundaries (org-cite-key-boundaries (org-element-context))))
+              (buffer-substring-no-properties
+               (car boundaries)
+               (cdr boundaries))))))
+  (should
+   (equal "-@key"
+          (org-test-with-temp-text "[cite:-<point>@key]"
+            (let ((boundaries (org-cite-key-boundaries (org-element-context))))
+              (buffer-substring-no-properties
+               (car boundaries)
+               (cdr boundaries))))))
+  (should
+   (equal "@key"
+          (org-test-with-temp-text "[cite:<point>prefix @key]"
+            (let ((boundaries (org-cite-key-boundaries (org-element-context))))
+              (buffer-substring-no-properties
+               (car boundaries)
+               (cdr boundaries))))))
+  (should
+   (equal "@key"
+          (org-test-with-temp-text "[cite:<point>@key suffix]"
+            (let ((boundaries (org-cite-key-boundaries (org-element-context))))
+              (buffer-substring-no-properties
+               (car boundaries)
+               (cdr boundaries))))))
+  (should
+   (equal "@key"
+          (org-test-with-temp-text "[cite:global ;<point>@key]"
+            (let ((boundaries (org-cite-key-boundaries (org-element-context))))
+              (buffer-substring-no-properties
+               (car boundaries)
+               (cdr boundaries))))))
+  (should
+   (equal "@key"
+          (org-test-with-temp-text "[cite:<point>@key; global]"
+            (let ((boundaries (org-cite-key-boundaries (org-element-context))))
+              (buffer-substring-no-properties
+               (car boundaries)
+               (cdr boundaries)))))))
+
 (ert-deftest test-org-cite/list-bibliography-files ()
   "Test `org-cite-list-bibliography-files'."
   (should
