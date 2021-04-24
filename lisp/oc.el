@@ -248,6 +248,26 @@ NAME is a symbol.  Raise an error if processor is not registered."
   (message "Citation processor %S unregistered" name))
 
 
+;;; Internal functions
+(defun org-cite--set-previous-post-blank (datum blanks info)
+  "Set `:post-blank' property from element or object before DATUM to BLANKS.
+
+BLANKS is an integer.  DATUM is an element or object.  INFO is the export
+communication channel, as a property list.
+
+Previous element, if any, is modified by side-effect."
+  (let ((previous (org-export-get-previous-element datum info)))
+    (when previous
+      (if (not (eq 'plain-text (org-element-type previous)))
+          (org-element-put-property previous :post-blank blanks)
+        ;; Remove any blank from string before DATUM so it is exported
+        ;; with exactly BLANKS white spaces.
+        (org-element-set-element
+         previous
+         (org-element-put-property (replace-regexp-in-string "[ \t]+\\'" "" previous)
+                                   :post-blank blanks))))))
+
+
 ;;; Generic tools
 (defun org-cite-inside-footnote-p (citation)
   "Return the closest footnote containing CITATION object.
@@ -344,7 +364,7 @@ Citations are ordered by appearance in the document, when following footnotes."
           (plist-put info :citations result)
           result))))
 
-(defun org-cite-wrap-citation (citation)
+(defun org-cite-wrap-citation (citation info)
   "Wrap an anonymous inline footnote around CITATION object in the parse tree.
 The parse tree is modified by side-effect."
   (let ((footnote
@@ -354,6 +374,8 @@ The parse tree is modified by side-effect."
                      :contents-begin (org-element-property :begin citation)
                      :contents-end (org-element-property :end citation)
                      :post-blank (org-element-property :post-blank citation)))))
+    ;; Remove any white space before citation.
+    (org-cite--set-previous-post-blank citation 0 info)
     ;; Footnote swallows citation.
     (org-element-insert-before footnote citation)
     (org-element-adopt-elements footnote
@@ -486,15 +508,7 @@ by side-effect."
         (`nil
          ;; Before removing the citation, transfer its :post-blank
          ;; property to the object before, if any.
-         (let ((previous (org-export-get-previous-element cite info)))
-           (when previous
-             (if (not (eq 'plain-text (org-element-type previous)))
-                 (org-element-put-property previous :post-blank blanks)
-               (org-element-set-element
-                previous
-                (org-element-put-property
-                 (replace-regexp-in-string "[ \t]+\\'" "" previous)
-                 :post-blank blanks)))))
+         (org-cite--set-previous-post-blank cite blanks info)
          (org-element-extract-element cite))
         (_
          (error "Invalid return value from citation export processor: %S"
@@ -525,9 +539,7 @@ by side effect."
                ;; Before removing the citation, transfer its
                ;; `:post-blank' property to the element before, if
                ;; any.
-               (let ((previous (org-export-get-previous-element keyword info)))
-                 (when previous
-                   (org-element-put-property previous :post-blank blanks)))
+               (org-cite--set-previous-post-blank keyword blanks info)
                (org-element-extract-element keyword))
               (_
                (error "Invalid return value from citation export processor: %S"

@@ -464,7 +464,7 @@
    (org-test-with-parsed-data "[cite:@key]"
      (org-element-map tree 'citation
        (lambda (c)
-         (org-cite-wrap-citation c)
+         (org-cite-wrap-citation c info)
          (org-cite-inside-footnote-p c))
        info)))
   ;; Created footnote is anonymous.
@@ -472,7 +472,7 @@
    (org-test-with-parsed-data "[cite:@key]  "
      (org-element-map tree 'citation
        (lambda (c)
-         (org-cite-wrap-citation c)
+         (org-cite-wrap-citation c info)
          (org-element-property :label (org-cite-inside-footnote-p c)))
        info)))
   ;; Created footnote is inline.
@@ -481,7 +481,7 @@
           (org-test-with-parsed-data "[cite:@key]"
             (org-element-map tree 'citation
               (lambda (c)
-                (org-cite-wrap-citation c)
+                (org-cite-wrap-citation c info)
                 (org-element-property :type (org-cite-inside-footnote-p c)))
               info))))
   ;; Preserve `:post-blank' property.
@@ -490,9 +490,29 @@
           (org-test-with-parsed-data "[cite:@key]  "
             (org-element-map tree 'citation
               (lambda (c)
-                (org-cite-wrap-citation c)
+                (org-cite-wrap-citation c info)
                 (org-element-property :post-blank
                                       (org-cite-inside-footnote-p c)))
+              info))))
+  ;; Set `:post-blank' to 0 in the element before new footnote.
+  (should
+   (equal '(0)
+          (org-test-with-parsed-data "Text [cite:@key]"
+            (org-element-map tree 'citation
+              (lambda (c)
+                (org-cite-wrap-citation c info)
+                (org-element-property :post-blank
+                                      (org-export-get-previous-element
+                                       (org-cite-inside-footnote-p c) info)))
+              info))))
+  (should
+   (equal '("Text")
+          (org-test-with-parsed-data "Text [cite:@key]"
+            (org-element-map tree 'citation
+              (lambda (c)
+                (org-cite-wrap-citation c info)
+                (org-export-get-previous-element
+                 (org-cite-inside-footnote-p c) info))
               info)))))
 
 
