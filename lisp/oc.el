@@ -367,6 +367,16 @@ Citations are ordered by appearance in the document, when following footnotes."
           (plist-put info :citations result)
           result))))
 
+(defun org-cite-list-keys (info)
+  "List citation keys in the exported document.
+Keys are ordered by first appearance in the document, when following footnotes.
+Duplicate keys are removed.  INFO is the export communication channel, as a
+property list."
+  (delete-dups
+   (org-element-map (org-cite-list-citations info) 'citation-reference
+     (lambda (r) (org-element-property :key r))
+     info)))
+
 (defun org-cite-wrap-citation (citation info)
   "Wrap an anonymous inline footnote around CITATION object in the parse tree.
 The parse tree is modified by side-effect."

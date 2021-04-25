@@ -463,6 +463,33 @@
                                  (org-element-contents c)))
                        (org-cite-list-citations info))))))
 
+(ert-deftest test-org-cite/list-keys ()
+  "Test `org-cite-list-keys'."
+  (should
+   (equal '("a")
+          (org-test-with-parsed-data "Test [cite:@a]"
+            (org-cite-list-keys info))))
+  (should
+   (equal '("a" "b")
+          (org-test-with-parsed-data "Test [cite:@a] [cite:@b]"
+            (org-cite-list-keys info))))
+  ;; Remove duplicates.
+  (should
+   (equal '("a")
+          (org-test-with-parsed-data "Test [cite:@a] [cite:@a]"
+            (org-cite-list-keys info))))
+  ;; Keys are ordered by first appearance in the document.
+  (should
+   (equal '("a" "b")
+          (org-test-with-parsed-data "Test [cite:@a] [cite:@b] [cite:@a]"
+            (org-cite-list-keys info))))
+  (should
+   (equal '("a" "b" "c")
+          (org-test-with-parsed-data
+              "Test [cite:@a][fn:1] [cite:@c] [cite:@a]\n[fn:1] [cite:@b]"
+            (org-cite-list-keys info)))))
+
+
 (ert-deftest org-cite/wrap-citation ()
   "Test `org-cite-wrap-citation'."
   ;; Reference test.
