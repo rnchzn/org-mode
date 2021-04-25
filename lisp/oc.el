@@ -399,9 +399,9 @@ DATUM is a citation object, or a citation reference.  In any case, apply
                 (point))))
     (add-text-properties beg end '(font-lock-multiline t))
     (add-face-text-property beg end 'org-cite)
-    (org-with-point-at beg
-      (while (re-search-forward org-element-citation-key-re end t)
-        (add-face-text-property (match-beginning 0) (match-end 0)
+    (dolist (reference (org-cite-get-references citation))
+      (let ((boundaries (org-cite-key-boundaries reference)))
+        (add-face-text-property (car boundaries) (cdr boundaries)
                                 'org-cite-key)))))
 
 (defun org-cite-activate (limit)
