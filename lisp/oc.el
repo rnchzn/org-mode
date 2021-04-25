@@ -532,17 +532,21 @@ by side-effect."
       (pcase replacement
         ((pred stringp)
          ;; Handle `:post-blank' before replacing value.
-         (let((output (concat (org-trim replacement)
-                              (make-string blanks ?\s))))
-           (org-element-set-element cite (org-export-raw-object output))))
+         (let ((output (concat (org-trim replacement)
+                               (make-string blanks ?\s))))
+           ;; Don't use `org-element-set-element' here, because this
+           ;; function modifies objects by side-effect.  However, we
+           ;; still want to preserve citations located in `:citations'
+           ;; property.
+           (org-element-insert-before (org-export-raw-object output) cite)))
         (`nil
          ;; Before removing the citation, transfer its :post-blank
          ;; property to the object before, if any.
-         (org-cite--set-previous-post-blank cite blanks info)
-         (org-element-extract-element cite))
+         (org-cite--set-previous-post-blank cite blanks info))
         (_
          (error "Invalid return value from citation export processor: %S"
-                replacement))))))
+                replacement)))
+      (org-element-extract-element cite))))
 
 (defun org-cite-process-bibliography (info)
   "Replace all \"print_bibliography\" keywords in the parse tree.
