@@ -346,7 +346,8 @@ INFO is a plist used as a communication channel."
 
 (defun org-cite-list-citations (info)
   "List citations in the exported document.
-Citations are ordered by appearance in the document, when following footnotes."
+Citations are ordered by appearance in the document, when following footnotes.
+INFO is the export communication channel, as a property list."
   (or (plist-get info :citations)
       (letrec ((cites nil)
                (search-cites
