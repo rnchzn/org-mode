@@ -397,6 +397,7 @@ DATUM is a citation object, or a citation reference.  In any case, apply
          (end (org-with-point-at (org-element-property :end cite)
                 (skip-chars-backward " \t")
                 (point))))
+    (add-text-properties beg end '(font-lock-multiline t))
     (add-face-text-property beg end 'org-cite)
     (org-with-point-at beg
       (while (re-search-forward org-element-citation-key-re end t)
