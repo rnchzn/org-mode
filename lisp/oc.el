@@ -399,7 +399,7 @@ DATUM is a citation object, or a citation reference.  In any case, apply
                 (point))))
     (add-text-properties beg end '(font-lock-multiline t))
     (add-face-text-property beg end 'org-cite)
-    (dolist (reference (org-cite-get-references citation))
+    (dolist (reference (org-cite-get-references cite))
       (let ((boundaries (org-cite-key-boundaries reference)))
         (add-face-text-property (car boundaries) (cdr boundaries)
                                 'org-cite-key)))))
