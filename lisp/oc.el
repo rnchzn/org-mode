@@ -193,10 +193,10 @@ can be set:
 
   `:export-bibliography'
 
-    Function rendering a bibliography.  It is called with five arguments: a list
-    of citations, a list of bibliography files, the style, as a string or nil,
-    the export back-end, as a symbol, and the communication channel, as a
-    property list.
+    Function rendering a bibliography.  It is called with five arguments:
+    the list of citation keys used in the document, as strings, a list
+    of bibliography files, the style, as a string or nil, the export back-end,
+    as a symbol, and the communication channel, as a property list.
 
     It is called at each \"print_bibliography\" keyword in the parse tree.
     It may return a string or nil.  When it returns nil, the keyword is ignored.
@@ -515,7 +515,7 @@ used as a communication channel."
              (org-cite--get-processor p))))
        (when export-bibilography
          (funcall export-bibilography
-	          (org-cite-list-citations info)
+	          (org-cite-list-keys info)
                   (plist-get info :bibliography)
                   (org-cite-bibliography-style keyword info)
                   (plist-get info :back-end)
