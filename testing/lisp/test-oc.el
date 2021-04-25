@@ -541,42 +541,33 @@
                  (org-cite-inside-footnote-p c) info))
               info)))))
 
-(ert-deftest test-org-cite/reference-number ()
-  "Test `org-cite-reference-number'."
+(ert-deftest test-org-cite/key-number ()
+  "Test `org-cite-key-number'."
   (should
-   (equal '(1)
-          (org-test-with-parsed-data "[cite:@key]"
-            (org-element-map tree 'citation-reference
-              (lambda (r) (org-cite-reference-number r info))))))
+   (= 1 (org-test-with-parsed-data "[cite:@key]"
+          (org-cite-key-number "key" info))))
   (should
-   (equal '(1 1)
-          (org-test-with-parsed-data "[cite:@key] [cite:@key]"
-            (org-element-map tree 'citation-reference
-              (lambda (r) (org-cite-reference-number r info))))))
-  (should
-   (equal '(1 2 1)
+   (equal '(1 2)
           (org-test-with-parsed-data "[cite:@key] [cite:@key2] [cite:@key]"
-            (org-element-map tree 'citation-reference
-              (lambda (r) (org-cite-reference-number r info))))))
+            (list (org-cite-key-number "key" info)
+                  (org-cite-key-number "key2" info)))))
   ;; When "predicate" is nil, keys are sorted by appearance order in
   ;; the buffer.
   (should
    (equal '((1 . "a") (2 . "c") (3 . "b"))
           (org-test-with-parsed-data
               "[cite:@a][fn:1] [cite:@b]\n[fn:1] [cite:@c]"
-            (sort (org-element-map tree 'citation-reference
-                    (lambda (r)
-                      (cons (org-cite-reference-number r info)
-                            (org-element-property :key r))))
+            (sort (mapcar (lambda (key)
+                            (cons (org-cite-key-number key info) key))
+                          '("a" "b" "c"))
                   #'car-less-than-car))))
   (should
    (equal '((1 . "a") (2 . "b") (3 . "c"))
           (org-test-with-parsed-data
               "[cite:@a][fn:1] [cite:@b]\n[fn:1] [cite:@c]"
-            (sort (org-element-map tree 'citation-reference
-                    (lambda (r)
-                      (cons (org-cite-reference-number r info #'string<)
-                            (org-element-property :key r))))
+            (sort (mapcar (lambda (key)
+                            (cons (org-cite-key-number key info #'string<) key))
+                          '("a" "b" "c"))
                   #'car-less-than-car)))))
 
 

@@ -395,20 +395,21 @@ The parse tree is modified by side-effect."
     (org-element-adopt-elements footnote
       (org-element-extract-element citation))))
 
-(defun org-cite-reference-number (reference info &optional predicate)
-  "Return number associated to citation REFERENCE, or nil.
+(defun org-cite-key-number (key info &optional predicate)
+  "Return number associated to string KEY.
 
 INFO is the export communication channel, as a property list.
 
 Optional argument PREDICATE is called with two keys, and returns non-nil
 if the first reference should sort before the second.  When nil, references
 are ordered by first appearance in the buffer."
-  (let* ((key (org-element-property :key reference))
-         (keys (org-cite-list-keys info))
+  (let* ((keys (org-cite-list-keys info))
          (sorted-keys (if (functionp predicate)
                           (sort keys predicate)
-                        keys)))
-    (1+ (cl-position key sorted-keys :test #'string-equal))))
+                        keys))
+         (position (cl-position key sorted-keys :test #'string-equal)))
+    (and (integerp position)
+         (1+ position))))
 
 
 ;;; Internal interface with fontification (activate capability)
