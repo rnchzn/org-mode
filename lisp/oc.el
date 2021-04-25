@@ -62,6 +62,7 @@
 
 (declare-function org-element-adopt-elements "org-element" (parent &rest children))
 (declare-function org-element-citation-parser "org-element" ())
+(declare-function org-element-citation-reference-parser "org-element" ())
 (declare-function org-element-contents "org-element" (element))
 (declare-function org-element-extract-element "org-element" (element))
 (declare-function org-element-insert-before "org-element" (element location))
@@ -304,11 +305,13 @@ Assume CITATION object comes from either a full parse tree, e.g., during export,
 or from the current buffer."
   (or (org-element-contents citation)
       (org-with-point-at (org-element-property :contents-begin citation)
-        (org-element-contents
-         (org-element-parse-secondary-string
-          (buffer-substring (point)
-                            (org-element-property :contents-end citation))
-          (org-element-restriction 'citation))))))
+        (narrow-to-region (point) (org-element-property :contents-end citation))
+        (let ((references nil))
+          (while (not (eobp))
+            (let ((reference (org-element-citation-reference-parser)))
+              (goto-char (org-element-property :end reference))
+              (push reference references)))
+          (nreverse references)))))
 
 (defun org-cite-key-boundaries (reference)
   "Return citation REFERENCE's key boundaries as buffer positions.

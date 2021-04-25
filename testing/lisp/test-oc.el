@@ -153,6 +153,12 @@
           (org-test-with-temp-text "[cite:common prefix; @a ; common suffix]"
             (mapcar (lambda (r) (org-element-property :key r))
                     (org-cite-get-references (org-element-context))))))
+  ;; Preserve buffer positions.
+  (should
+   (org-test-with-temp-text "[cite:@a] [cite<point>:@b]"
+     (= (1+ (point))
+        (org-element-property :begin
+                              (car (org-cite-get-references (org-element-context)))))))
   ;; Handle citation from a full parse tree.
   (should
    (equal '(1 2)
