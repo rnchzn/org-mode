@@ -118,8 +118,7 @@
 ;; to current setup.
 
 (defconst org-element-citation-key-re
-  (rx (opt "-")
-      "@"
+  (rx "@"
       (group
        (any "_" alpha)
        (opt (zero-or-more (any "#$%&+./:<>?_~-" alnum)) (any "_" alnum))))
@@ -2853,8 +2852,7 @@ CONTENTS is the contents of the object, as a string."
 
 When at a reference, return a list whose car is
 `citation-reference', and cdr is a plist with `:key',
-`:suppress-author', `:prefix', `:suffix', `:begin', `:end', and
-`:post-blank'. keywords.
+`:prefix', `:suffix', `:begin', `:end', and `:post-blank' keywords.
 
 Assume point is at the beginning of the reference."
   (save-excursion
@@ -2869,7 +2867,6 @@ Assume point is at the beginning of the reference."
 	       (reference
 	        (list 'citation-reference
 		      (list :key key
-			    :suppress-author (char-equal ?- (char-after key-start))
 			    :begin begin
 			    :end end
 			    :post-blank 0))))
@@ -2884,7 +2881,6 @@ Assume point is at the beginning of the reference."
 (defun org-element-citation-reference-interpreter (citation-reference _)
   "Interpret CITATION-REFERENCE object as Org syntax."
   (concat (org-element-property :prefix citation-reference)
-	  (and (org-element-property :suppress-author citation-reference) "-")
 	  "@" (org-element-property :key citation-reference)
 	  (org-element-property :suffix citation-reference)
           ";"))

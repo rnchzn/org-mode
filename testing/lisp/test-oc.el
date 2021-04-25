@@ -176,13 +176,6 @@
                (car boundaries)
                (cdr boundaries))))))
   (should
-   (equal "-@key"
-          (org-test-with-temp-text "[cite:-<point>@key]"
-            (let ((boundaries (org-cite-key-boundaries (org-element-context))))
-              (buffer-substring-no-properties
-               (car boundaries)
-               (cdr boundaries))))))
-  (should
    (equal "@key"
           (org-test-with-temp-text "[cite:<point>prefix @key]"
             (let ((boundaries (org-cite-key-boundaries (org-element-context))))

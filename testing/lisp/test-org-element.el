@@ -598,13 +598,6 @@ Some other text
    (eq 'citation-reference
        (org-test-with-temp-text "[cite:<point>-@key]"
 	 (org-element-type (org-element-context)))))
-  ;; "-" prefix implies `:suppress-author' property.
-  (should-not
-   (org-test-with-temp-text "[cite:<point>@key]"
-     (org-element-property :suppress-author (org-element-context))))
-  (should
-   (org-test-with-temp-text "[cite:<point>-@key]"
-     (org-element-property :suppress-author (org-element-context))))
   ;; Bare keys must start with an alphabetic character or an
   ;; underscore, can contain some punctuation characters, but must end
   ;; on an alphanumeric character or an underscore.
