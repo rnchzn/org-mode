@@ -214,11 +214,11 @@ can be set:
 
   `:export-finalizer'
 
-    Function called at the end of export process.  It must accept five
-    arguments: the output, as a string, a list of citations, a list of
-    bibliography files, a list of bibliography styles requested by various
-    \"print_bibliography\" keywords in the document, as strings or nil, and the
-    export back-end, as a symbol.
+    Function called at the end of export process.  It must accept six arguments:
+    the output, as a string, a list of citation keys used in the document,
+    a list of bibliography files, a list of bibliography styles requested by
+    \"print_bibliography\" keywords, as strings or nil, the export back-end,
+    as a symbol, and the communication channel, as a property list
 
     It must return a string, which will become the final output from the export
     process, barring subsequent modifications from export filters.
@@ -590,10 +590,11 @@ channel, as a property list."
            output
          (funcall finalizer
                   output
-                  (org-cite-list-citations info)
+                  (org-cite-list-keys info)
                   (plist-get info :bibliography)
                   (plist-get info :bibliography-styles)
-                  (plist-get info :back-end)))))
+                  (plist-get info :back-end)
+                  info))))
     (other (error "Invalid `:cite-export' value: %S" other))))
 
 
