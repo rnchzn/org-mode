@@ -1126,8 +1126,9 @@ current state of the export, as a plist."
 	 (path  (org-element-property :path link))
 	 (filename
 	  (file-name-sans-extension
-	   (if (file-name-absolute-p path) (expand-file-name path) path)))
-	 (extension (file-name-extension path))
+	   (if (file-name-absolute-p path) (expand-file-name path)
+	     (file-relative-name path (file-name-directory (org-export-output-file-name ".texi"))))))
+	 (extension (file-name-extension path 'with-dot))
 	 (attributes (org-export-read-attribute :attr_texinfo parent))
 	 (height (or (plist-get attributes :height) ""))
 	 (width (or (plist-get attributes :width) ""))
