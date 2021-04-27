@@ -566,21 +566,21 @@ Some other text
 	      (lambda (r) (org-element-property :key r))))))
   ;; Multi citations accept `:prefix' and `:suffix' properties.
   (should
-   (equal "common-prefix"
+   (equal '("common-prefix")
 	  (org-test-with-temp-text "[cite:common-prefix;@a]"
 	    (org-element-property :prefix (org-element-context)))))
   (should
-   (equal "common-suffix"
+   (equal '("common-suffix")
 	  (org-test-with-temp-text "[cite:@a;common-suffix]"
 	    (org-element-property :suffix (org-element-context)))))
   ;; White spaces right after "cite" tags are ignored. So are white
   ;; spaces at the end of the citation.
   (should
-   (equal "common-prefix "
+   (equal '("common-prefix ")
 	  (org-test-with-temp-text "[cite: common-prefix ;@a]"
 	    (org-element-property :prefix (org-element-context)))))
   (should
-   (equal " common-suffix"
+   (equal '(" common-suffix")
 	  (org-test-with-temp-text "[cite: @a; common-suffix ]"
 	    (org-element-property :suffix (org-element-context))))))
 
@@ -632,33 +632,33 @@ Some other text
   ;; References in citations accept optional `:prefix' and `:suffix'
   ;; properties.
   (should
-   (equal "pre "
+   (equal '("pre ")
 	  (org-test-with-temp-text "[cite:pre <point>@key]"
 	    (org-element-property :prefix (org-element-context)))))
   (should
-   (equal " post"
+   (equal '(" post")
 	  (org-test-with-temp-text "[cite:<point>@key post]"
 	    (org-element-property :suffix (org-element-context)))))
   ;; White spaces between "cite" tag and prefix are ignored.
   (should
-   (equal "pre "
+   (equal '("pre ")
 	  (org-test-with-temp-text "[cite: pre <point>@key]"
 	    (org-element-property :prefix (org-element-context)))))
   ;; Semicolons do not belong to prefix or suffix.
   (should
-   (equal "pre "
+   (equal '("pre ")
 	  (org-test-with-temp-text "[cite:@key1;pre <point>@key2]"
 	    (org-element-property :prefix (org-element-context)))))
   (should
-   (equal " post"
+   (equal '(" post")
 	  (org-test-with-temp-text "[cite:@key1 <point>post;@key2]"
 	    (org-element-property :suffix (org-element-context)))))
   (should
-   (equal "pre "
+   (equal '("pre ")
 	  (org-test-with-temp-text "[cite:global prefix;pre<point> @key1]"
 	    (org-element-property :prefix (org-element-context)))))
   (should
-   (equal " post"
+   (equal '(" post")
 	  (org-test-with-temp-text "[cite:@key1 <point>post; global suffix]"
 	    (org-element-property :suffix (org-element-context))))))
 

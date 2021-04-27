@@ -131,19 +131,19 @@
           (org-test-with-temp-text "[cite:@a;@b]"
             (mapcar (lambda (r) (org-element-property :key r))
                     (org-cite-get-references (org-element-context))))))
-  ;; Property parse prefix and suffix.
+  ;; Parse prefix and suffix.
   (should
    (equal '("a" "b")
           (org-test-with-temp-text "[cite:prefix @a suffix;@b]"
             (mapcar (lambda (r) (org-element-property :key r))
                     (org-cite-get-references (org-element-context))))))
   (should
-   (equal '("prefix " nil)
+   (equal '(("prefix ") nil)
           (org-test-with-temp-text "[cite:prefix @a suffix;@b]"
             (mapcar (lambda (r) (org-element-property :prefix r))
                     (org-cite-get-references (org-element-context))))))
   (should
-   (equal '(" suffix" nil)
+   (equal '((" suffix") nil)
           (org-test-with-temp-text "[cite:prefix @a suffix;@b]"
             (mapcar (lambda (r) (org-element-property :suffix r))
                     (org-cite-get-references (org-element-context))))))

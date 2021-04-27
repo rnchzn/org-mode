@@ -354,6 +354,7 @@ Don't modify it, set `org-element-affiliated-keywords' instead.")
 	 (standard-set-no-line-break (remq 'line-break standard-set)))
     `((bold ,@standard-set)
       (citation citation-reference)
+      (citation-reference ,@minimal-set)
       (footnote-reference ,@standard-set)
       (headline ,@standard-set-no-line-break)
       (inlinetask ,@standard-set-no-line-break)
@@ -2797,7 +2798,8 @@ Assume point is at the beginning of the citation."
 		   (re-search-forward org-element-citation-key-re closing t))
 	  ;; Find prefix, if any.
 	  (let ((first-key-end (match-end 0))
-		(cite
+		(types (org-element-restriction 'citation-reference))
+                (cite
 		 (list 'citation
 		       (list :style style
 			     :begin begin
@@ -2811,7 +2813,9 @@ Assume point is at the beginning of the citation."
 	    (if (not (search-backward ";" start t))
 		(org-element-put-property cite :contents-begin start)
 	      (when (< start (point))
-		(org-element-put-property cite :prefix (buffer-substring start (point))))
+		(org-element-put-property
+                 cite :prefix
+                 (org-element--parse-objects start (point) nil types cite)))
 	      (forward-char)
 	      (org-element-put-property cite :contents-begin (point)))
 	    ;; `:contents-end' depends on the presence of a non-empty
@@ -2824,7 +2828,9 @@ Assume point is at the beginning of the citation."
 		  (org-element-put-property cite :contents-end end)
 		(when (< (1+ (point)) end)
 		  (org-element-put-property
-                   cite :suffix (buffer-substring (1+ (point)) end)))
+                   cite :suffix
+                   (org-element--parse-objects
+                    (1+ (point)) end nil types cite)))
 		(org-element-put-property cite :contents-end (point))))
 	    cite))))))
 
@@ -2837,9 +2843,9 @@ CONTENTS is the contents of the object, as a string."
     (concat "[cite"
             (and style (concat "/" style))
             ":"
-            (and prefix (concat prefix ";"))
+            (and prefix (concat (org-element-interpret-data prefix) ";"))
             (if suffix
-                (concat contents suffix)
+                (concat contents (org-element-interpret-data suffix))
               ;; Remove spurious semicolon.
               (substring contents nil -1))
             "]")))
@@ -2864,6 +2870,7 @@ Assume point is at the beginning of the reference."
 	       (separator (search-forward ";" nil t))
                (end (or separator (point-max)))
                (suffix-end (if separator (1- end) end))
+               (types (org-element-restriction 'citation-reference))
 	       (reference
 	        (list 'citation-reference
 		      (list :key key
@@ -2872,17 +2879,21 @@ Assume point is at the beginning of the reference."
 			    :post-blank 0))))
 	  (when (< begin key-start)
 	    (org-element-put-property
-	     reference :prefix (buffer-substring begin key-start)))
+	     reference :prefix
+             (org-element--parse-objects begin key-start nil types reference)))
 	  (when (< key-end suffix-end)
 	    (org-element-put-property
-	     reference :suffix (buffer-substring key-end suffix-end)))
+	     reference :suffix
+             (org-element--parse-objects key-end suffix-end nil types reference)))
 	  reference)))))
 
 (defun org-element-citation-reference-interpreter (citation-reference _)
   "Interpret CITATION-REFERENCE object as Org syntax."
-  (concat (org-element-property :prefix citation-reference)
+  (concat (org-element-interpret-data
+           (org-element-property :prefix citation-reference))
 	  "@" (org-element-property :key citation-reference)
-	  (org-element-property :suffix citation-reference)
+	  (org-element-interpret-data
+           (org-element-property :suffix citation-reference))
           ";"))
 
 
